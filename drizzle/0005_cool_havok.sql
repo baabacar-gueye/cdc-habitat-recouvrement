@@ -1,0 +1,1 @@
+ALTER TABLE `call_logs` ADD `next_channel` text DEFAULT 'Appel téléphonique' NOT NULL;
