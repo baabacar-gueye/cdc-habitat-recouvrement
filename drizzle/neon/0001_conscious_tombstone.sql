@@ -1,0 +1,2 @@
+ALTER TABLE "app_users" ADD CONSTRAINT "app_users_role_check" CHECK ("app_users"."role" IN ('admin','superviseur','agent'));--> statement-breakpoint
+ALTER TABLE "app_users" ADD CONSTRAINT "app_users_active_check" CHECK ("app_users"."active" IN (0,1));

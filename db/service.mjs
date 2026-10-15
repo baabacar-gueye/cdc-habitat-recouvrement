@@ -4,10 +4,10 @@ export const sourceAudit=source.audit;
 export async function bootstrap(db){
  if(await db.prepare("SELECT value FROM settings WHERE key = 'initial_import'").first())return;
  const commands=[];
- for(const c of source.clients)commands.push(db.prepare('INSERT OR IGNORE INTO clients (id,first,last,nin,phone,email,address) VALUES (?,?,?,?,?,?,?)').bind(c.id,c.first,c.last,c.nin,c.phone,c.email,c.address));
- for(const s of source.sales)commands.push(db.prepare('INSERT OR IGNORE INTO sales (id,client_id,sheet,source_row,program,zone,lot,position,area,price_m2,price,baseline,baseline_fees,source_balance,date,flags,raw) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').bind(s.id,s.clientId,s.sheet,s.sourceRow,s.program,s.zone,s.lot,s.position,s.area??null,s.priceM2??null,s.price,s.baseline,s.baselineFees,s.sourceBalance,s.date,JSON.stringify(s.flags),JSON.stringify(s.raw)));
+ for(const c of source.clients)commands.push(db.prepare('INSERT INTO clients (id,first,last,nin,phone,email,address) VALUES (?,?,?,?,?,?,?) ON CONFLICT DO NOTHING').bind(c.id,c.first,c.last,c.nin,c.phone,c.email,c.address));
+ for(const s of source.sales)commands.push(db.prepare('INSERT INTO sales (id,client_id,sheet,source_row,program,zone,lot,position,area,price_m2,price,baseline,baseline_fees,source_balance,date,flags,raw) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING').bind(s.id,s.clientId,s.sheet,s.sourceRow,s.program,s.zone,s.lot,s.position,s.area??null,s.priceM2??null,s.price,s.baseline,s.baselineFees,s.sourceBalance,s.date,JSON.stringify(s.flags),JSON.stringify(s.raw)));
  for(let i=0;i<commands.length;i+=50)await db.batch(commands.slice(i,i+50));
- await db.prepare("INSERT OR IGNORE INTO settings (key,value) VALUES ('initial_import',?)").bind(JSON.stringify({at:new Date().toISOString(),count:source.sales.length})).run();
+ await db.prepare("INSERT INTO settings (key,value) VALUES ('initial_import',?) ON CONFLICT DO NOTHING").bind(JSON.stringify({at:new Date().toISOString(),count:source.sales.length})).run();
 }
 const json=x=>x?JSON.parse(x):null;
 export async function listData(db){

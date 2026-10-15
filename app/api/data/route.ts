@@ -1,4 +1,4 @@
-import {env} from 'cloudflare:workers';
+import {env} from '@/lib/env.mjs';
 import {listData,mutate} from '@/db/service.mjs';
 import {authorizedUser} from '@/lib/auth.mjs';
 export const dynamic='force-dynamic';
