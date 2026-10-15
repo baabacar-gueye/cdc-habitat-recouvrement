@@ -1,4 +1,4 @@
-import {env} from 'cloudflare:workers';
+import {env} from '@/lib/env.mjs';
 import {authorizedUser,validEmail,safeOrigin,randomToken,tokenHash,noStore,errorResponse} from '@/lib/auth.mjs';
 export const dynamic='force-dynamic';
 const db=()=>{if(!env.DB)throw new Error('Base indisponible');return env.DB;};
@@ -21,7 +21,8 @@ export async function POST(request:Request){
  if(!validEmail(email)||!name||name.length>150||!roles.includes(b?.role))return errorResponse('Nom, email ou rôle invalide.');
  const existing=await db().prepare('SELECT role FROM app_users WHERE email=?').bind(email).first() as {role:string}|null;
  if(existing&&existing.role!==b.role)return errorResponse('Modifiez le rôle dans la liste avant de renvoyer une invitation.');
- if(!env.RESEND_API_KEY||!env.INVITE_FROM?.includes('@')||env.INVITE_FROM.includes('REMPLACER')||env.APP_ORIGIN!=='https://recouvrement.cdc-habitat.sn')
+ const apiKey=env.RESEND_API_KEY,from=env.INVITE_FROM,origin=env.APP_ORIGIN;
+ if(!apiKey||!from?.includes('@')||from.includes('REMPLACER')||origin!=='https://recouvrement.cdc-habitat.sn')
   return errorResponse('Envoi des invitations non configuré. Contactez l’administrateur technique.',503);
  const token=randomToken(),hash=await tokenHash(token);
  const expiry=new Date(Date.now()+48*3600000).toISOString();
@@ -31,12 +32,12 @@ export async function POST(request:Request){
   db().prepare('INSERT INTO invitations(token_hash,email,expires_at) VALUES(?,?,?)').bind(hash,email,expiry),
   db().prepare('INSERT INTO user_audit(id,actor,target_email,operation) VALUES(?,?,?,?)').bind(crypto.randomUUID(),user.email,email,'Invitation créée')
  ]);
- const link=env.APP_ORIGIN+'/invitation?token='+token;
+ const link=origin+'/invitation?token='+token;
  let sent=false;
  try{
   const response=await fetch('https://api.resend.com/emails',{
-   method:'POST',headers:{Authorization:'Bearer '+env.RESEND_API_KEY,'Content-Type':'application/json'},
-   body:JSON.stringify({from:env.INVITE_FROM,to:[email],subject:'Invitation à l’espace recouvrement CDC HABITAT',
+   method:'POST',headers:{Authorization:'Bearer '+apiKey,'Content-Type':'application/json'},
+   body:JSON.stringify({from,to:[email],subject:'Invitation à l’espace recouvrement CDC HABITAT',
     text:`Bonjour ${name},\n\nVous êtes invité à accéder à l’espace de recouvrement CDC HABITAT. Ouvrez ce lien personnel pour choisir votre mot de passe (valable 48 heures) :\n\n${link}\n\nSi vous n’attendiez pas cette invitation, ignorez ce message.\n\nCDC HABITAT`})
   });
   sent=response.ok;

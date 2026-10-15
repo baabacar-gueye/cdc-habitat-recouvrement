@@ -1,4 +1,4 @@
-import {env} from 'cloudflare:workers';
+import {env} from '@/lib/env.mjs';
 import {tokenHash,hashPassword,makeSession,safeOrigin,noStore,errorResponse} from '@/lib/auth.mjs';
 export const dynamic='force-dynamic';
 export async function POST(request:Request){
