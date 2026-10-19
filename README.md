@@ -7,6 +7,7 @@ Adresse prévue : **https://recouvrement.cdc-habitat.sn**. Application autonome 
 - Deux administrateurs sont prévus : `mndiaye@cdc-habitat.sn` et `bgueye@cdc-habitat.sn`. Chacun reçoit son propre lien d'activation et choisit son mot de passe. L'interface conserve au moins deux administrateurs actifs.
 - Depuis **Équipe**, un administrateur saisit le nom, l'email et le rôle d'un agent, puis clique sur **Envoyer l'invitation**.
 - Un email personnel contient un lien valable 48 heures, à usage unique. L'agent choisit lui-même un mot de passe de 12 caractères au minimum. Le responsable ne voit jamais ce mot de passe.
+- Depuis la connexion, un collaborateur peut demander un lien de récupération par email. Ce lien à usage unique est valable 30 minutes. Les demandes sont limitées à trois par compte et par heure, sans révéler si une adresse est enregistrée.
 - Le responsable peut changer un rôle, désactiver/réactiver un compte ou envoyer un nouveau lien pour réinitialiser l'accès. Un compte désactivé perd aussitôt sa session.
 - **Administrateur** : équipe, dossiers, versements et recouvrement. **Superviseur** : dossiers et suivi, sans saisie de versement. **Agent** : consultation et actions de recouvrement, sans saisie financière ni administration.
 
@@ -31,4 +32,4 @@ Aucune invitation réelle n'a été envoyée pendant la préparation de ce paque
 
 ## Vérifications locales
 
-Node.js 22.13+, pnpm 11. `node tests/auth.test.mjs` contrôle les mots de passe, sessions et liens d'invitation. `node tests/data.test.mjs` contrôle les dossiers, montants, mutations, actions de recouvrement et engagements. `node tests/neon.test.mjs` contrôle l'adaptateur SQL PostgreSQL et ses transactions. `pnpm lint` et `pnpm build` vérifient le code. Les routes de données et d'authentification nécessitent une base PostgreSQL Neon configurée.
+Node.js 22.13+, pnpm 11. `node tests/auth.test.mjs` contrôle les mots de passe, sessions et liens d'invitation. `node tests/data.test.mjs` contrôle les dossiers, montants, mutations, actions de recouvrement et engagements. `node tests/neon.test.mjs` contrôle l'adaptateur SQL PostgreSQL et ses transactions. `pnpm lint` et `pnpm build` vérifient le code. Les routes de données et d'authentification nécessitent une base PostgreSQL Neon configurée. Appliquer les nouvelles migrations Neon (`pnpm db:migrate`) avant de déployer les changements du schéma.

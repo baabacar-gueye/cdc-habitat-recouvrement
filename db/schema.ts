@@ -40,6 +40,10 @@ export const loginAttempts=pgTable('login_attempts',{
  email:text('email').primaryKey(),attempts:integer('attempts').notNull().default(0),
  windowStart:text('window_start').notNull(),blockedUntil:text('blocked_until')
 });
+export const passwordRecoveryLimits=pgTable('password_recovery_limits',{
+ email:text('email').primaryKey().references(()=>appUsers.email),attempts:integer('attempts').notNull().default(0),
+ windowStart:text('window_start').notNull()
+});
 export const userAudit=pgTable('user_audit',{
  id:text('id').primaryKey(),actor:text('actor').notNull(),targetEmail:text('target_email').notNull(),
  operation:text('operation').notNull(),createdAt:text('created_at').notNull().default(sql`CURRENT_TIMESTAMP::text`)

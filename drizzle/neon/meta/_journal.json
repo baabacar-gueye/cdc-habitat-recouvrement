@@ -15,6 +15,13 @@
       "when": 1792061849317,
       "tag": "0001_conscious_tombstone",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792406763741,
+      "tag": "0002_magical_chimera",
+      "breakpoints": true
     }
   ]
 }
