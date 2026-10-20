@@ -1,0 +1,38 @@
+name: Bootstrap administrator accounts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: administrator-account-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Create administrator accounts and send setup links
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          INVITE_FROM: ${{ secrets.INVITE_FROM }}
+          APP_ORIGIN: https://recouvrement.cdc-habitat.sn
+        run: |
+          if [ -z "$DATABASE_URL" ] || [ -z "$RESEND_API_KEY" ] || [ -z "$INVITE_FROM" ]; then
+            echo "::error::Configure DATABASE_URL, RESEND_API_KEY, and INVITE_FROM as repository Actions secrets."
+            exit 1
+          fi
+          node scripts/bootstrap-admin.mjs
